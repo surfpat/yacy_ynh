@@ -5,6 +5,10 @@
         "en": "Free and decentrelized search engine",
         "fr": "Moteur de recherche libre et décentralisé"
     },
+    "requirements": {
+"yunohost": ">> 2.4.0"
+        },
+        
     "developer": {
         "name": "Moul",
         "email": "moul@moul.re",
