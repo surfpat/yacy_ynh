@@ -28,7 +28,7 @@ gpg --keyserver pgpkeys.mit.edu --recv-key 1F968B3903D886E7
 gpg -a --export 1F968B3903D886E7 | sudo apt-key add -
 
 sudo apt-get update
-sudo apt-get install yacy -y -qq
+sudo apt-get install yacy -y
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 nginx_conf=../conf/nginx.conf
