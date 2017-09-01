@@ -1,8 +1,13 @@
 #!/bin/bash 
 
+# Exit on command errors and treat unset variables as an error
+set -eu
+
+app=$YNH_APP_INSTANCE_NAME
+
 # Retrieve arguments
-domain=$1
-path=$2
+domain=$YNH_APP_ARG_DOMAIN
+path=$YNH_APP_ARG_PATH
 
 # Check domain/path availability
 sudo yunohost app checkurl $domain$path -a yacy
@@ -25,9 +30,19 @@ gpg -a --export 1F968B3903D886E7 | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install yacy -y -qq
 
-# Modify Nginx and YaCy configuration file, then copy them to the right place
-sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/yacy.conf
+# Modify Nginx configuration file and copy it to Nginx conf directory
+nginx_conf=../conf/nginx.conf
+sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
+sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
+# If a dedicated php-fpm process is used:
+# Don't forget to modify ../conf/nginx.conf accordingly or your app will not work!
+# sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
+sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+
+# Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
+sudo service nginx reload
+ynh_app_setting_set "$app" unprotected_uris "/"
+sudo yunohost app ssowatconf
 
 # Add YaCy service to the YunoHost monitoring
 sudo yunohost service add yacy --log /var/log/yacy/yacy00.log
